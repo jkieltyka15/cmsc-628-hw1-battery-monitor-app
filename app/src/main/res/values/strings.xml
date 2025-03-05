@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">Battery Monitor</string>
-    <string name="textView_batteryLevelLabel_text">Battery Level:</string>
-    <string name="textView_batteryServiceLabel_text">Battery Service:</string>
-    <string name="button_startBatteryService_text">START</string>
-    <string name="button_stopBatteryService">STOP</string>
+    <string name="textView_batteryLevel_label_text">Battery Level:</string>
+    <string name="textView_batteryLevel_unknown">UNKNOWN</string>
+    <string name="textView_batteryService_label_text">Battery Service:</string>
+    <string name="textView_batteryService_enabled">ENABLED</string>
+    <string name="textView_batteryService_disabled">DISABLED</string>
+    <string name="button_batteryService_start_text">START</string>
+    <string name="button_batteryService_stop_text">STOP</string>
 </resources>
