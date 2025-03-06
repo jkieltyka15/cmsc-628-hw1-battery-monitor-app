@@ -25,11 +25,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // battery level
     private StringBuilder batteryLevelText; // holds battery level value text
     private TextView textView_batteryLevel_value;   // shows the percentage of battery remaining
-    private Button button_batteryService_start;     // starts battery monitor service
-    private Button button_batteryService_stop;      // stops battery monitor service
+    private Button button_batteryService_start; // starts battery monitor service
+    private Button button_batteryService_stop;  // stops battery monitor service
 
     // battery service
     private boolean isBatteryServiceEnabled;    // flag for determining if battery service is enabled
+    private boolean isBatteryServiceEnabledBeforePause; // flag for if the battery service was running before pause
     private TextView textView_batteryService_value; // shows the state of the battery service
 
     // broadcast receiver for getting battery level
@@ -140,6 +141,45 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * Enables battery service and updates UI accordingly
+     */
+    private void enableBatteryService() {
+
+        // battery service is already enabled
+        if (isBatteryServiceEnabled) {
+            return;
+        }
+
+        // start battery service
+        Intent serviceIntent = new Intent(this, BatteryService.class);
+        startService(serviceIntent);
+        isBatteryServiceEnabled = true;
+
+        // update battery service value text
+        handler.post(new EnableBatteryServiceWork());
+    }
+
+
+    /**
+     * Disables battery service and updates UI accordingly
+     */
+    private void disableBatteryService() {
+
+        // battery service is already disabled
+        if (!isBatteryServiceEnabled) {
+            return;
+        }
+
+        // stop battery service
+        Intent serviceIntent = new Intent(this, BatteryService.class);
+        stopService(serviceIntent);
+        isBatteryServiceEnabled = false;
+
+        // update battery service value text
+        handler.post(new DisableBatteryServiceWork());
+    }
+
 
     /**
      * Called when Activity is created
@@ -162,6 +202,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // initialize battery service variables
         isBatteryServiceEnabled = false;
+        isBatteryServiceEnabledBeforePause = false;
         textView_batteryService_value = (TextView)(findViewById(R.id.textView_batteryService_value));
         button_batteryService_start = (Button) (findViewById(R.id.button_batteryService_start));
         button_batteryService_stop = (Button) (findViewById(R.id.button_batteryService_stop));
@@ -192,6 +233,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
         IntentFilter intentFilter = new IntentFilter(BatteryService.ACTION_BATTERY_LEVEL);
         localBroadcastManager.registerReceiver(batteryReceiver, intentFilter);
+
+        // re-enable the battery service if it was running before the activity was paused
+        if (isBatteryServiceEnabledBeforePause) {
+            enableBatteryService();;
+        }
     }
 
 
@@ -203,6 +249,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onPause() {
 
         super.onPause();
+
+        // save the battery service running state
+        isBatteryServiceEnabledBeforePause = isBatteryServiceEnabled;
+
+        // disable battery service
+        disableBatteryService();
 
         // unregister battery receiver
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(this);
@@ -228,36 +280,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         // start battery service button clicked
         if (buttonId == R.id.button_batteryService_start) {
-
-            // battery service is already enabled
-            if (isBatteryServiceEnabled) {
-                return;
-            }
-
-            // update battery service value text
-            handler.post(new EnableBatteryServiceWork());
-
-            // start battery service
-            Intent serviceIntent = new Intent(this, BatteryService.class);
-            startService(serviceIntent);
-            isBatteryServiceEnabled = true;
+            enableBatteryService();;
         }
 
         // stop battery service button clicked
         else if (buttonId == R.id.button_batteryService_stop) {
-
-            // battery service is already disabled
-            if (!isBatteryServiceEnabled) {
-                return;
-            }
-
-            // update battery service value text
-            handler.post(new DisableBatteryServiceWork());
-
-            // start battery service
-            Intent serviceIntent = new Intent(this, BatteryService.class);
-            stopService(serviceIntent);
-            isBatteryServiceEnabled = false;
+            disableBatteryService();;
         }
     }
 }
