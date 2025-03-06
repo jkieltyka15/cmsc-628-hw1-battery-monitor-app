@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // battery level
     private StringBuilder batteryLevelText; // holds battery level value text
     private TextView textView_batteryLevel_value;   // shows the percentage of battery remaining
+    private Button button_batteryService_start;     // starts battery monitor service
+    private Button button_batteryService_stop;      // stops battery monitor service
 
     // battery service
     private boolean isBatteryServiceEnabled;    // flag for determining if battery service is enabled
@@ -68,9 +70,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
 
+            // update battery service state text
             int textColor = (int)(getResources().getColor(R.color.green, getTheme()));
             textView_batteryService_value.setTextColor(textColor);
             textView_batteryService_value.setText(R.string.textView_batteryService_enabled);
+
+            // disable start button
+            button_batteryService_start.setEnabled(false);
+            button_batteryService_start.setClickable(false);
+
+            // enable stop button
+            button_batteryService_stop.setEnabled(true);
+            button_batteryService_stop.setClickable(true);
         }
     }
 
@@ -83,17 +94,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void run() {
 
+            // update battery service state text
             int textColor = (int)(getResources().getColor(R.color.red, getTheme()));
             textView_batteryService_value.setTextColor(textColor);
             textView_batteryService_value.setText(R.string.textView_batteryService_disabled);
+
+            // disable stop button
+            button_batteryService_stop.setEnabled(false);
+            button_batteryService_stop.setClickable(false);
+
+            // enable start button
+            button_batteryService_start.setEnabled(true);
+            button_batteryService_start.setClickable(true);
         }
     }
 
 
     private class UpdateBatteryLevel implements Runnable {
 
-        // battery power level
-        int batteryLevel;
+        final static int BATTERY_LEVEL_LOW = 20; // battery level is low
+        int batteryLevel;   // battery power level
 
         UpdateBatteryLevel(int batteryLevel) {
             this.batteryLevel = batteryLevel;
@@ -104,6 +124,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
          */
         @Override
         public void run() {
+
+            int textColor = (int) (getResources().getColor(R.color.green, getTheme()));
+
+            // low battery
+            if (BATTERY_LEVEL_LOW >= this.batteryLevel) {
+                textColor = (int) (getResources().getColor(R.color.red, getTheme()));
+            }
+
+            textView_batteryLevel_value.setTextColor(textColor);
 
             batteryLevelText.setLength(0);
             batteryLevelText.append(this.batteryLevel).append('%');
@@ -134,8 +163,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // initialize battery service variables
         isBatteryServiceEnabled = false;
         textView_batteryService_value = (TextView)(findViewById(R.id.textView_batteryService_value));
-        Button button_batteryService_start = (Button) (findViewById(R.id.button_batteryService_start));
-        Button button_batteryService_stop = (Button) (findViewById(R.id.button_batteryService_stop));
+        button_batteryService_start = (Button) (findViewById(R.id.button_batteryService_start));
+        button_batteryService_stop = (Button) (findViewById(R.id.button_batteryService_stop));
 
         // setup button listeners
         button_batteryService_start.setOnClickListener(this);
