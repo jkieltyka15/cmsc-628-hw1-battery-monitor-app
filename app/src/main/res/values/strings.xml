@@ -7,4 +7,6 @@
     <string name="textView_batteryService_disabled">DISABLED</string>
     <string name="button_batteryService_start_text">START</string>
     <string name="button_batteryService_stop_text">STOP</string>
+    <string name="action_battery_level">com.example.ACTION_BATTERY_LEVEL</string>
+    <string name="extra_battery_level">com.example.EXTRA_BATTERY_LEVEL</string>
 </resources>
